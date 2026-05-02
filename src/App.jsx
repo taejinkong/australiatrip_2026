@@ -1,69 +1,66 @@
-import React, { useState } from 'react';
-import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding, Bus } from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding, Bus, Sun, Coffee, Compass } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, Marker, Polyline, InfoWindow } from '@react-google-maps/api';
 import './index.css';
+
+const GOOGLE_MAPS_API_KEY = 'AIzaSyAiUWwhKNry_SmyaW4xikE8CeCNqqp3ta0';
 
 const itineraryData = {
   0: {
     day: 0,
     date: '5/4(월)',
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3161.8028753239845!2d126.4312891156543!3d37.58330757979469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357b90b41188334b%3A0xcdaefc1e1c3132e0!2sIncheon%20International%20Airport%20Terminal%202!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '08:44', title: '출발', desc: '공항버스 탑승 (우등, 좌석 10번)', location: '동탄(호수부영3차)', icon: <Bus size={18} /> },
-      { time: '10:43', title: '도착', desc: '인천공항 제2여객터미널 도착', location: '인천공항T2', icon: <Navigation size={18} /> },
-      { time: '20:10', title: '출발', desc: '인천공항 출발 (OZ601)', location: '인천공항T2', icon: <PlaneTakeoff size={18} /> }
+      { time: '08:44', title: '출발', desc: '공항버스 탑승 (우등, 좌석 10번)', location: '동탄(호수부영3차)', icon: <Bus size={18} />, lat: 37.1685, lng: 127.1065 },
+      { time: '10:43', title: '도착', desc: '인천공항 제2여객터미널 도착', location: '인천공항T2', icon: <Navigation size={18} />, lat: 37.4682, lng: 126.4332 },
+      { time: '20:10', title: '출발', desc: '인천공항 출발 (OZ601)', location: '인천공항T2', icon: <PlaneTakeoff size={18} />, lat: 37.4682, lng: 126.4332 }
     ]
   },
   1: {
     day: 1,
     date: '5/5(화)',
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.3087361819665!2d151.17316717654763!3d-33.93992297320005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12b0f11b3382cb%3A0xc6c38f4e24eb37a!2sSydney%20Airport!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '07:30', title: '도착', desc: '시드니 공항 도착 입국 수속', location: '시드니 공항' },
-      { time: '08:30', title: '픽업', desc: '공항 → 호텔 이동 (기사님 카톡 확인)', location: '공항 출구' },
-      { time: '14:00~', title: '체크인', desc: '파크로얄 달링 하버 리셉션 문의', location: '파크로얄 달링 하버' },
-      { time: '오후', title: '자유일정', desc: '시드니 시내 관광 및 휴식', location: '시드니 시내' }
+      { time: '07:30', title: '도착', desc: '시드니 공항 도착 입국 수속', location: '시드니 공항', icon: <Plane size={18} />, lat: -33.9399, lng: 151.1753 },
+      { time: '08:30', title: '픽업', desc: '공항 → 호텔 이동', location: '공항 출구', icon: <Navigation size={18} />, lat: -33.9399, lng: 151.1753 },
+      { time: '14:00~', title: '체크인', desc: '파크로얄 달링 하버 리셉션 문의', location: '파크로얄 달링 하버', icon: <Coffee size={18} />, lat: -33.8731, lng: 151.2024 },
+      { time: '오후', title: '자유일정', desc: '시드니 시내 관광 및 휴식', location: '시드니 시내', icon: <Sun size={18} />, lat: -33.8688, lng: 151.2093 }
     ]
   },
   2: {
     day: 2,
     date: '5/6(수)',
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3315.659349887752!2d150.31215437654402!3d-33.71772697328405!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b126c8b9d8a5ba1%3A0x5017d681632ad40!2sBlue%20Mountains%20National%20Park!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '07:15', title: '미팅', desc: '투어 출발 (15분 전 대기)', location: '1-5 Wheat Road' },
-      { time: '07:30~', title: '패키지', desc: '블루마운틴 & 페더데일 동물원 등', location: '블루마운틴' },
-      { time: '16:30', title: '종료', desc: '투어 종료 및 드랍', location: 'Rydges World Square 앞' },
-      { time: '저녁', title: '자유일정', desc: '울월스 쇼핑 또는 저녁 식사', location: '시티 내' }
+      { time: '07:15', title: '미팅', desc: '투어 출발 (15분 전 대기)', location: '1-5 Wheat Road', icon: <Compass size={18} />, lat: -33.8698, lng: 151.2014 },
+      { time: '07:30~', title: '패키지', desc: '블루마운틴 & 페더데일 동물원 등', location: '블루마운틴', icon: <Camera size={18} />, lat: -33.7177, lng: 150.3121 },
+      { time: '16:30', title: '종료', desc: '투어 종료 및 드랍', location: 'Rydges World Square 앞', icon: <Navigation size={18} />, lat: -33.8767, lng: 151.2070 },
+      { time: '저녁', title: '자유일정', desc: '울월스 쇼핑 또는 저녁 식사', location: '시티 내', icon: <Coffee size={18} />, lat: -33.8710, lng: 151.2060 }
     ]
   },
   3: {
     day: 3,
     date: '5/7(목)',
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.964408047913!2d151.2127264765469!3d-33.85678437323136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12ae665e892fdd%3A0x3133f8d75a1ac251!2sSydney%20Opera%20House!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '10:30', title: '미팅', desc: '오페라하우스 내부 투어 대기', location: 'Lower Concourse' },
-      { time: '10:45', title: '패키지', desc: '오페라하우스 내부 관람', location: '오페라하우스' },
-      { time: '15:50', title: '미팅', desc: '시티 워킹투어 미팅', location: '써큘러키 선착장 6번 앞' },
-      { time: '오후', title: '패키지', desc: '시드니 시티 선셋 워킹투어', location: '시드니 시티 주요 명소' }
+      { time: '10:30', title: '미팅', desc: '오페라하우스 내부 투어 대기', location: 'Lower Concourse', icon: <MapPin size={18} />, lat: -33.8568, lng: 151.2153 },
+      { time: '10:45', title: '패키지', desc: '오페라하우스 내부 관람', location: '오페라하우스', icon: <Camera size={18} />, lat: -33.8568, lng: 151.2153 },
+      { time: '15:50', title: '미팅', desc: '시티 워킹투어 미팅', location: '써큘러키 선착장 6번 앞', icon: <Compass size={18} />, lat: -33.8617, lng: 151.2109 },
+      { time: '오후', title: '패키지', desc: '시드니 시티 선셋 워킹투어', location: '시드니 시티 주요 명소', icon: <Sun size={18} />, lat: -33.8688, lng: 151.2093 }
     ]
   },
   4: {
     day: 4,
     date: '5/8(금)',
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.8396071490226!2d151.21528657654714!3d-33.86146037323004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12ae6143c13aeb%3A0x280e7d56e18b0!2sRoyal%20Botanic%20Garden%20Sydney!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '11:45', title: '미팅', desc: '런치 크루즈 보딩 대기', location: 'Eastern Pontoon' },
-      { time: '12:30', title: '패키지', desc: '하버 런치 크루즈(뷔페 식사)', location: '시드니 하버' },
-      { time: '14:15', title: '종료', desc: '크루즈 하선 후 이동', location: 'Circular Quay → 보타닉 가든' },
-      { time: '오후', title: '자유일정', desc: '로얄 보타닉 가든 & 시내 관광', location: '로얄 보타닉 가든' }
+      { time: '11:45', title: '미팅', desc: '런치 크루즈 보딩 대기', location: 'Eastern Pontoon', icon: <MapPin size={18} />, lat: -33.8601, lng: 151.2127 },
+      { time: '12:30', title: '패키지', desc: '하버 런치 크루즈(뷔페 식사)', location: '시드니 하버', icon: <Coffee size={18} />, lat: -33.8566, lng: 151.2144 },
+      { time: '14:15', title: '종료', desc: '크루즈 하선 후 이동', location: 'Circular Quay → 보타닉 가든', icon: <Navigation size={18} />, lat: -33.8617, lng: 151.2109 },
+      { time: '오후', title: '자유일정', desc: '로얄 보타닉 가든 & 시내 관광', location: '로얄 보타닉 가든', icon: <Camera size={18} />, lat: -33.8631, lng: 151.2166 }
     ]
   },
   5: {
     day: 5,
     date: '5/9(토)',
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.3087361819665!2d151.17316717654763!3d-33.93992297320005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12b0f11b3382cb%3A0xc6c38f4e24eb37a!2sSydney%20Airport!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '07:30', title: '드랍', desc: '호텔 앞 공항 이동 서비스', location: '호텔 앞' },
-      { time: '오전', title: '샌딩', desc: '시드니 공항 도착 후 샌딩', location: '시드니 공항' }
+      { time: '07:30', title: '드랍', desc: '호텔 앞 공항 이동 서비스', location: '호텔 앞', icon: <Navigation size={18} />, lat: -33.8731, lng: 151.2024 },
+      { time: '오전', title: '샌딩', desc: '시드니 공항 도착 후 샌딩', location: '시드니 공항', icon: <Plane size={18} />, lat: -33.9399, lng: 151.1753 }
     ]
   }
 };
@@ -167,20 +164,102 @@ function HomeScreen({ onNavigate }) {
 function ItineraryScreen() {
   const [selectedDay, setSelectedDay] = useState(0);
   const currentData = itineraryData[selectedDay];
+  
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY
+  });
+
+  const [map, setMap] = useState(null);
+  const [activeMarker, setActiveMarker] = useState(null);
+
+  const onLoad = useCallback(function callback(map) {
+    setMap(map);
+  }, []);
+
+  const onUnmount = useCallback(function callback() {
+    setMap(null);
+  }, []);
+
+  // Compute map center & bounds based on current activities
+  const markers = useMemo(() => {
+    // filter out items that don't have valid lat/lng or are duplicates
+    const seen = new Set();
+    return currentData.activities.filter(act => {
+      if (act.lat && act.lng) {
+        const key = `${act.lat}-${act.lng}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          return true;
+        }
+      }
+      return false;
+    });
+  }, [currentData]);
+
+  const path = markers.map(m => ({ lat: m.lat, lng: m.lng }));
+  
+  const center = useMemo(() => {
+    if (markers.length === 0) return { lat: -33.8688, lng: 151.2093 };
+    const lat = markers.reduce((acc, m) => acc + m.lat, 0) / markers.length;
+    const lng = markers.reduce((acc, m) => acc + m.lng, 0) / markers.length;
+    return { lat, lng };
+  }, [markers]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ width: '100%', height: '30vh', backgroundColor: '#e5e7eb' }}>
-        <iframe
-          src={currentData.mapUrl}
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          allowFullScreen=""
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title={`Day ${selectedDay} Map`}
-        ></iframe>
+      <div style={{ width: '100%', height: '35vh', backgroundColor: '#e5e7eb', position: 'relative' }}>
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '100%' }}
+            center={center}
+            zoom={markers.length > 1 ? 11 : 14}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+            options={{
+              disableDefaultUI: true,
+              zoomControl: true,
+            }}
+          >
+            {markers.length > 1 && (
+              <Polyline
+                path={path}
+                options={{
+                  strokeColor: '#3b82f6',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 4,
+                }}
+              />
+            )}
+            
+            {markers.map((marker, index) => (
+              <Marker
+                key={index}
+                position={{ lat: marker.lat, lng: marker.lng }}
+                label={{
+                  text: `${index + 1}`,
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '12px'
+                }}
+                onClick={() => setActiveMarker(index)}
+              >
+                {activeMarker === index && (
+                  <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+                    <div style={{ padding: '2px', color: '#1f2937' }}>
+                      <p style={{ fontWeight: 'bold', fontSize: '12px', margin: 0 }}>{marker.time}</p>
+                      <p style={{ margin: 0, fontSize: '11px' }}>{marker.location}</p>
+                    </div>
+                  </InfoWindow>
+                )}
+              </Marker>
+            ))}
+          </GoogleMap>
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+            지도 로딩중...
+          </div>
+        )}
       </div>
       
       <div className="day-selector">
@@ -188,7 +267,10 @@ function ItineraryScreen() {
           <div 
             key={day}
             className={`day-btn ${selectedDay === day ? 'active' : ''}`}
-            onClick={() => setSelectedDay(day)}
+            onClick={() => {
+              setSelectedDay(day);
+              setActiveMarker(null);
+            }}
           >
             <span className="day-title">Day {day}</span>
             <span className="day-date">{itineraryData[day].date}</span>
@@ -197,24 +279,36 @@ function ItineraryScreen() {
       </div>
 
       <div style={{ padding: '24px 20px', backgroundColor: '#fff', flex: 1 }}>
-        {currentData.activities.map((act, index) => (
-          <div key={index} className="timeline-item">
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <div style={{ flexShrink: 0, width: '45px', fontSize: '0.85rem', fontWeight: '600', color: '#3b82f6', marginTop: '2px' }}>
-                {act.time}
-              </div>
-              <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '4px' }}>
-                  <span style={{ backgroundColor: '#eff6ff', color: '#3b82f6', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', marginRight: '6px' }}>{act.title}</span>
-                  {act.desc}
-                </h4>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '0.85rem' }}>
-                  <MapPin size={14} /> {act.location}
+        {currentData.activities.map((act, index) => {
+          // Find the marker index for this activity to display the point number
+          const markerIndex = markers.findIndex(m => m.lat === act.lat && m.lng === act.lng);
+          const pointNumber = markerIndex !== -1 ? markerIndex + 1 : null;
+
+          return (
+            <div key={index} className="timeline-item">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <div style={{ flexShrink: 0, width: '45px', fontSize: '0.85rem', fontWeight: '600', color: '#3b82f6', marginTop: '2px' }}>
+                  {act.time}
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ backgroundColor: '#eff6ff', color: '#3b82f6', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>{act.title}</span>
+                    {act.desc}
+                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '0.85rem' }}>
+                    <MapPin size={14} /> 
+                    {act.location} 
+                    {pointNumber && (
+                      <span style={{ marginLeft: '6px', backgroundColor: '#ef4444', color: 'white', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>
+                        {pointNumber}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontSize: '0.85rem' }}>
           일정의 끝입니다.
         </div>
