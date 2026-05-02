@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding, Bus, Sun, Coffee, Compass } from 'lucide-react';
+import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding, Bus, Sun, Coffee, Compass, QrCode } from 'lucide-react';
 import { GoogleMap, useJsApiLoader, Marker, Polyline, InfoWindow, TransitLayer } from '@react-google-maps/api';
 import './index.css';
 
@@ -91,19 +91,11 @@ function App() {
         {renderContent()}
       </main>
 
-      {/* Bottom Navigation */}
       <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '100%',
-        maxWidth: '480px',
-        backgroundColor: '#ffffff',
-        display: 'flex',
-        borderTop: '1px solid #e5e7eb',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        zIndex: 50
+        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', maxWidth: '480px', backgroundColor: '#ffffff',
+        display: 'flex', borderTop: '1px solid #e5e7eb',
+        paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 50
       }}>
         <TabButton icon={<Home />} label="홈" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
         <TabButton icon={<Calendar />} label="일정" isActive={activeTab === 'itinerary'} onClick={() => setActiveTab('itinerary')} />
@@ -128,32 +120,33 @@ function HomeScreen({ onNavigate }) {
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100%', paddingBottom: '20px' }}>
       <div style={{
-        backgroundColor: '#3b82f6',
+        background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
         padding: '40px 20px',
         borderBottomLeftRadius: '24px',
         borderBottomRightRadius: '24px',
         color: '#fff',
-        marginBottom: '20px'
+        marginBottom: '24px',
+        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
       }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '8px' }}>호주 시드니 여행 🇦🇺</h1>
-        <p style={{ opacity: 0.9 }}>2026.05.04 ~ 05.16 (KIM JIHYUN)</p>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px', letterSpacing: '-0.5px' }}>호주 시드니 여행 🇦🇺</h1>
+        <p style={{ opacity: 0.9, fontWeight: '500' }}>2026.05.04 ~ 05.16 (KIM JIHYUN)</p>
       </div>
 
       <div style={{ padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <button className="home-menu-btn" onClick={() => onNavigate('itinerary')}>
-          <Calendar size={32} />
+        <button className="home-menu-btn" style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', color: '#1e40af' }} onClick={() => onNavigate('itinerary')}>
+          <div style={{ background: '#bfdbfe', padding: '12px', borderRadius: '50%' }}><Calendar size={28} color="#2563eb" /></div>
           <span>일정표</span>
         </button>
-        <button className="home-menu-btn" onClick={() => onNavigate('reservation')}>
-          <Ticket size={32} />
+        <button className="home-menu-btn" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', color: '#92400e' }} onClick={() => onNavigate('reservation')}>
+          <div style={{ background: '#fcd34d', padding: '12px', borderRadius: '50%' }}><Ticket size={28} color="#d97706" /></div>
           <span>예약확인</span>
         </button>
-        <button className="home-menu-btn" onClick={() => onNavigate('guide')}>
-          <BookOpen size={32} />
+        <button className="home-menu-btn" style={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', color: '#065f46' }} onClick={() => onNavigate('guide')}>
+          <div style={{ background: '#a7f3d0', padding: '12px', borderRadius: '50%' }}><BookOpen size={28} color="#059669" /></div>
           <span>여행가이드</span>
         </button>
-        <button className="home-menu-btn" onClick={() => onNavigate('record')}>
-          <Camera size={32} />
+        <button className="home-menu-btn" style={{ background: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', color: '#9d174d' }} onClick={() => onNavigate('record')}>
+          <div style={{ background: '#f9a8d4', padding: '12px', borderRadius: '50%' }}><Camera size={28} color="#db2777" /></div>
           <span>여행기록</span>
         </button>
       </div>
@@ -173,25 +166,15 @@ function ItineraryScreen() {
   const [map, setMap] = useState(null);
   const [activeMarker, setActiveMarker] = useState(null);
 
-  const onLoad = useCallback(function callback(map) {
-    setMap(map);
-  }, []);
+  const onLoad = useCallback(function callback(map) { setMap(map); }, []);
+  const onUnmount = useCallback(function callback() { setMap(null); }, []);
 
-  const onUnmount = useCallback(function callback() {
-    setMap(null);
-  }, []);
-
-  // Compute map center & bounds based on current activities
   const markers = useMemo(() => {
-    // filter out items that don't have valid lat/lng or are duplicates
     const seen = new Set();
     return currentData.activities.filter(act => {
       if (act.lat && act.lng) {
         const key = `${act.lat}-${act.lng}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          return true;
-        }
+        if (!seen.has(key)) { seen.add(key); return true; }
       }
       return false;
     });
@@ -216,36 +199,15 @@ function ItineraryScreen() {
             zoom={markers.length > 1 ? 11 : 14}
             onLoad={onLoad}
             onUnmount={onUnmount}
-            options={{
-              disableDefaultUI: false,
-              zoomControl: true,
-              mapTypeControl: false,
-              streetViewControl: false,
-              clickableIcons: true,
-            }}
+            options={{ disableDefaultUI: false, zoomControl: true, mapTypeControl: false, streetViewControl: false, clickableIcons: true }}
           >
             <TransitLayer />
-            {markers.length > 1 && (
-              <Polyline
-                path={path}
-                options={{
-                  strokeColor: '#3b82f6',
-                  strokeOpacity: 0.8,
-                  strokeWeight: 4,
-                }}
-              />
-            )}
-            
+            {markers.length > 1 && <Polyline path={path} options={{ strokeColor: '#3b82f6', strokeOpacity: 0.8, strokeWeight: 4 }} />}
             {markers.map((marker, index) => (
               <Marker
                 key={index}
                 position={{ lat: marker.lat, lng: marker.lng }}
-                label={{
-                  text: `${index + 1}`,
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '12px'
-                }}
+                label={{ text: `${index + 1}`, color: 'white', fontWeight: 'bold', fontSize: '12px' }}
                 onClick={() => setActiveMarker(index)}
               >
                 {activeMarker === index && (
@@ -260,22 +222,13 @@ function ItineraryScreen() {
             ))}
           </GoogleMap>
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
-            지도 로딩중...
-          </div>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>지도 로딩중...</div>
         )}
       </div>
       
       <div className="day-selector">
         {[0, 1, 2, 3, 4, 5].map(day => (
-          <div 
-            key={day}
-            className={`day-btn ${selectedDay === day ? 'active' : ''}`}
-            onClick={() => {
-              setSelectedDay(day);
-              setActiveMarker(null);
-            }}
-          >
+          <div key={day} className={`day-btn ${selectedDay === day ? 'active' : ''}`} onClick={() => { setSelectedDay(day); setActiveMarker(null); }}>
             <span className="day-title">Day {day}</span>
             <span className="day-date">{itineraryData[day].date}</span>
           </div>
@@ -284,34 +237,22 @@ function ItineraryScreen() {
 
       <div style={{ padding: '24px 20px', backgroundColor: '#fff', flex: 1 }}>
         {currentData.activities.map((act, index) => {
-          // Find the marker index for this activity to display the point number
           const markerIndex = markers.findIndex(m => m.lat === act.lat && m.lng === act.lng);
           const pointNumber = markerIndex !== -1 ? markerIndex + 1 : null;
-
           return (
             <div key={index} className="timeline-item">
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ flexShrink: 0, width: '45px', fontSize: '0.85rem', fontWeight: '600', color: '#3b82f6', marginTop: '10px' }}>
-                  {act.time}
-                </div>
-                
+                <div style={{ flexShrink: 0, width: '45px', fontSize: '0.85rem', fontWeight: '600', color: '#3b82f6', marginTop: '10px' }}>{act.time}</div>
                 <div style={{ flex: 1, backgroundColor: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '16px', padding: '16px', display: 'flex', gap: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '12px', backgroundColor: act.iconBg, flexShrink: 0 }}>
-                    {act.icon}
-                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '12px', backgroundColor: act.iconBg, flexShrink: 0 }}>{act.icon}</div>
                   <div>
                     <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{ backgroundColor: '#eff6ff', color: '#3b82f6', padding: '2px 8px', borderRadius: '6px', fontSize: '0.75rem' }}>{act.title}</span>
                       {act.desc}
                     </h4>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '0.85rem' }}>
-                      <MapPin size={14} color="#9ca3af" /> 
-                      {act.location} 
-                      {pointNumber && (
-                        <span style={{ marginLeft: '6px', backgroundColor: '#ef4444', color: 'white', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>
-                          {pointNumber}
-                        </span>
-                      )}
+                      <MapPin size={14} color="#9ca3af" /> {act.location} 
+                      {pointNumber && <span style={{ marginLeft: '6px', backgroundColor: '#ef4444', color: 'white', borderRadius: '50%', width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>{pointNumber}</span>}
                     </div>
                   </div>
                 </div>
@@ -319,152 +260,209 @@ function ItineraryScreen() {
             </div>
           );
         })}
-        <div style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontSize: '0.85rem' }}>
-          일정의 끝입니다.
-        </div>
+        <div style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontSize: '0.85rem' }}>일정의 끝입니다.</div>
       </div>
     </div>
   );
 }
 
 function ReservationScreen() {
+  const [cat, setCat] = useState('flight');
+  const [route, setRoute] = useState('outbound'); // 'outbound' | 'inbound'
+
   return (
-    <div style={{ padding: '20px', minHeight: '100%', backgroundColor: '#f3f4f6' }}>
-      <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>나의 예약 정보</h2>
+    <div style={{ padding: '24px 20px', minHeight: '100%', backgroundColor: '#f3f4f6' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '20px', color: '#1f2937' }}>예약 / 티켓</h2>
       
-      {/* Bus Ticket */}
-      <div className="ticket-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>용남익스프레스</span>
-            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937' }}>공항버스 (우등)</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>승차홈</span>
-            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#3b82f6' }}>현장확인</div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>동탄</div>
-            <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>(호수부영3차)</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#9ca3af' }}>
-            <Bus size={24} color="#f59e0b" />
-            <span style={{ fontSize: '0.75rem', marginTop: '4px' }}>1:59 소요</span>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>인천공항</div>
-            <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>T2</div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일시</div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>2026.05.04 08:44</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>좌석번호</div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>10 번</div>
-          </div>
-        </div>
+      {/* Category Tabs */}
+      <div className="res-category-tabs" style={{ marginBottom: '24px' }}>
+        <div className={`res-tab ${cat === 'flight' ? 'active' : ''}`} onClick={() => setCat('flight')}>항공권</div>
+        <div className={`res-tab ${cat === 'hotel' ? 'active' : ''}`} onClick={() => setCat('hotel')}>숙박</div>
+        <div className={`res-tab ${cat === 'transit' ? 'active' : ''}`} onClick={() => setCat('transit')}>승차권</div>
+        <div className={`res-tab ${cat === 'etc' ? 'active' : ''}`} onClick={() => setCat('etc')}>기타</div>
       </div>
 
-      {/* Flight Ticket 1 */}
-      <div className="ticket-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>ASIANA AIRLINES</span>
-            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937' }}>OZ601</div>
+      {cat === 'flight' && (
+        <div>
+          {/* Reservation Number */}
+          <div style={{ marginBottom: '20px', backgroundColor: '#e0e7ff', padding: '16px', borderRadius: '12px', borderLeft: '4px solid #4f46e5' }}>
+            <div style={{ fontSize: '0.8rem', color: '#4338ca', fontWeight: '600' }}>항공권 예약번호</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#312e81', letterSpacing: '2px' }}>EEBGXT</div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>예약번호</span>
-            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#3b82f6' }}>EEBGXT</div>
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>ICN</div>
-            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>인천 (Seoul)</div>
+          {/* Route Tabs */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+            <button 
+              onClick={() => setRoute('outbound')}
+              style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: route === 'outbound' ? '#3b82f6' : '#e5e7eb', color: route === 'outbound' ? 'white' : '#4b5563', fontWeight: '700', fontSize: '0.95rem' }}>
+              가는 여정
+            </button>
+            <button 
+              onClick={() => setRoute('inbound')}
+              style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: route === 'inbound' ? '#3b82f6' : '#e5e7eb', color: route === 'inbound' ? 'white' : '#4b5563', fontWeight: '700', fontSize: '0.95rem' }}>
+              오는 여정
+            </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#9ca3af' }}>
-            <PlaneTakeoff size={24} color="#3b82f6" />
-            <span style={{ fontSize: '0.75rem', marginTop: '4px' }}>10H 20M</span>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>SYD</div>
-            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>시드니 (Sydney)</div>
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일시</div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>04MAY26 (월) 20:10</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>도착일시</div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>05MAY26 (화) 07:30</div>
-          </div>
-        </div>
+          {/* Boarding Pass */}
+          <div className="bp-card">
+            <div className="bp-header">
+              <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>ASIANA AIRLINES</div>
+              <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '2px' }}>BOARDING PASS 탑승권</div>
+            </div>
+            
+            <div className="bp-body">
+              <div style={{ textAlign: 'center', fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px' }}>
+                KONG / SUNWOO & KIM / JIHYUN
+              </div>
 
-        <div className="ticket-divider"></div>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <div><span style={{ color: '#6b7280' }}>승객명:</span> <span style={{ fontWeight: '600' }}>KIM/JIHYUN MS</span></div>
-          <div><span style={{ color: '#6b7280' }}>좌석:</span> <span style={{ fontWeight: '600' }}>05E</span></div>
-        </div>
-      </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>편명</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{route === 'outbound' ? 'OZ601' : 'OZ602'}</div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{route === 'outbound' ? '04 May 2026' : '16 May 2026'}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>좌석</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#ef4444' }}>5E, 5F</div>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Middle / Aisle</div>
+                </div>
+              </div>
 
-      {/* Flight Ticket 2 */}
-      <div className="ticket-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>ASIANA AIRLINES</span>
-            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937' }}>OZ602</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>예약번호</span>
-            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#3b82f6' }}>DIKMHP</div>
-          </div>
-        </div>
+              <div style={{ display: 'flex', gap: '20px', marginBottom: '24px' }}>
+                <div style={{ flexShrink: 0, width: '100px', height: '100px', backgroundColor: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <QrCode size={64} color="#334155" />
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>탑승구</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#ef4444' }}>모니터 확인</div>
+                  <div style={{ fontSize: '0.85rem', color: '#4b5563', marginBottom: '10px' }}>터미널 2</div>
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'baseline' }}>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>ZONE</div>
+                      <div style={{ fontWeight: 'bold', color: '#ef4444' }}>PRI</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>탑승시각</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#ef4444' }}>{route === 'outbound' ? '19:40' : '08:40'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>SYD</div>
-            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>시드니 (Sydney)</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#9ca3af' }}>
-            <PlaneLanding size={24} color="#3b82f6" />
-            <span style={{ fontSize: '0.75rem', marginTop: '4px' }}>10H 30M</span>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>ICN</div>
-            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>인천 (Seoul)</div>
-          </div>
-        </div>
+              <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#d97706', fontWeight: 'bold', marginBottom: '12px' }}>
+                ** PRESTIGE LOUNGE INVITED **
+              </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일시</div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>16MAY26 (토) 09:30</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '900' }}>{route === 'outbound' ? 'ICN' : 'SYD'}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>{route === 'outbound' ? 'SEOUL' : 'SYDNEY'}</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', marginTop: '4px' }}>{route === 'outbound' ? '20:10' : '09:30'}</div>
+                </div>
+                <PlaneTakeoff size={24} color="#9ca3af" />
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '900' }}>{route === 'outbound' ? 'SYD' : 'ICN'}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>{route === 'outbound' ? 'SYDNEY' : 'SEOUL'}</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', marginTop: '4px' }}>{route === 'outbound' ? '07:30+1' : '19:00'}</div>
+                </div>
+              </div>
+            </div>
+            <div className="bp-priority">
+              PRIORITY BOARDING
+            </div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>도착일시</div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>16MAY26 (토) 19:00</div>
-          </div>
-        </div>
 
-        <div className="ticket-divider"></div>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <div><span style={{ color: '#6b7280' }}>승객명:</span> <span style={{ fontWeight: '600' }}>KIM/JIHYUN MS</span></div>
-          <div><span style={{ color: '#6b7280' }}>좌석:</span> <span style={{ fontWeight: '600' }}>26B</span></div>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', marginTop: '32px' }}>좌석 체크인</h3>
+          <div className="seat-map">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', padding: '0 4px', fontSize: '0.85rem', fontWeight: 'bold', color: '#6b7280' }}>
+              <div style={{ width: '36px', textAlign: 'center' }}>A</div>
+              <div style={{ width: '36px', textAlign: 'center' }}>D</div>
+              <div style={{ width: '36px', textAlign: 'center' }}>E</div>
+              <div style={{ width: '36px', textAlign: 'center' }}>F</div>
+              <div style={{ width: '36px', textAlign: 'center' }}>G</div>
+              <div style={{ width: '36px', textAlign: 'center' }}>K</div>
+            </div>
+
+            {/* Row 1 */}
+            <div className="seat-row">
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>1</span></div>
+              <div className="seat"></div>
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>1</span></div>
+              <div className="seat"></div>
+            </div>
+            {/* Row 2 */}
+            <div className="seat-row">
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>2</span></div>
+              <div className="seat available"></div>
+              <div className="seat available"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>2</span></div>
+              <div className="seat"></div>
+            </div>
+            {/* Row 3 */}
+            <div className="seat-row">
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>3</span></div>
+              <div className="seat"></div>
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>3</span></div>
+              <div className="seat"></div>
+            </div>
+            {/* Row 4 */}
+            <div className="seat-row">
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>4</span></div>
+              <div className="seat available"></div>
+              <div className="seat available"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>4</span></div>
+              <div className="seat"></div>
+            </div>
+            {/* Row 5 - active 5E, 5F */}
+            <div className="seat-row">
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>5</span></div>
+              <div className="seat active">E</div>
+              <div className="seat active">F</div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>5</span></div>
+              <div className="seat"></div>
+            </div>
+            {/* Row 6 */}
+            <div className="seat-row">
+              <div className="seat available"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>6</span></div>
+              <div className="seat available"></div>
+              <div className="seat available"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>6</span></div>
+              <div className="seat available"></div>
+            </div>
+            {/* Row 7 */}
+            <div className="seat-row">
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>7</span></div>
+              <div className="seat"></div>
+              <div className="seat"></div>
+              <div className="seat empty"><span style={{fontSize:'0.7rem', color:'#cbd5e1'}}>7</span></div>
+              <div className="seat"></div>
+            </div>
+            
+            <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', color: '#1f2937' }}>
+              선택된 좌석: <span style={{ color: '#ef4444' }}>5E, 5F</span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {cat !== 'flight' && (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
+          해당 카테고리의 예약 내역이 없습니다.
+        </div>
+      )}
     </div>
   );
 }
