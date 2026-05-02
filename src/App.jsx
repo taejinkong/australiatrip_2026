@@ -1,255 +1,328 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Calendar, Plane, Compass, Camera, Coffee, Sun, Navigation, Map } from 'lucide-react';
+import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding } from 'lucide-react';
 import './index.css';
 
-const itineraryData = [
-  {
+const itineraryData = {
+  1: {
     day: 1,
-    title: '시드니 도착 및 휴식',
     date: '5/5(화)',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.3087361819665!2d151.17316717654763!3d-33.93992297320005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12b0f11b3382cb%3A0xc6c38f4e24eb37a!2sSydney%20Airport!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '07:30', desc: '시드니 공항 도착 입국 수속 (준비물: 여권, 입국신고서)', location: '시드니 공항', icon: <Plane size={18} /> },
-      { time: '08:30', desc: '공항 → 호텔 이동 (기사님 카톡 확인)', location: '공항 출구', icon: <Navigation size={18} /> },
-      { time: '14:00~', desc: '파크로얄 달링 하버 리셉션 문의 (얼리 체크인)', location: '파크로얄 달링 하버', icon: <Coffee size={18} /> },
-      { time: '오후', desc: '시드니 시내 관광 및 휴식, 개인 자유 시간 (선크림, 모자 등)', location: '시드니 시내', icon: <Sun size={18} /> }
+      { time: '07:30', title: '도착', desc: '시드니 공항 도착 입국 수속', location: '시드니 공항' },
+      { time: '08:30', title: '픽업', desc: '공항 → 호텔 이동 (기사님 카톡 확인)', location: '공항 출구' },
+      { time: '14:00~', title: '체크인', desc: '파크로얄 달링 하버 리셉션 문의', location: '파크로얄 달링 하버' },
+      { time: '오후', title: '자유일정', desc: '시드니 시내 관광 및 휴식', location: '시드니 시내' }
     ]
   },
-  {
+  2: {
     day: 2,
-    title: '블루마운틴 투어',
     date: '5/6(수)',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3315.659349887752!2d150.31215437654402!3d-33.71772697328405!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b126c8b9d8a5ba1%3A0x5017d681632ad40!2sBlue%20Mountains%20National%20Park!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '07:15', desc: '투어 출발 (15분 전 대기)', location: '1-5 Wheat Road (수족관 옆)', icon: <Compass size={18} /> },
-      { time: '07:30~', desc: '블루마운틴 & 페더데일 동물원, 시닉월드 3종, 동물 먹이 체험', location: '블루마운틴', icon: <Camera size={18} /> },
-      { time: '16:30', desc: '투어 종료 및 드랍', location: 'Rydges World Square 앞', icon: <Navigation size={18} /> },
-      { time: '저녁', desc: '울월스 쇼핑 또는 저녁 식사', location: '시티 내 울월스 또는 식당', icon: <Coffee size={18} /> }
+      { time: '07:15', title: '미팅', desc: '투어 출발 (15분 전 대기)', location: '1-5 Wheat Road' },
+      { time: '07:30~', title: '패키지', desc: '블루마운틴 & 페더데일 동물원 등', location: '블루마운틴' },
+      { time: '16:30', title: '종료', desc: '투어 종료 및 드랍', location: 'Rydges World Square 앞' },
+      { time: '저녁', title: '자유일정', desc: '울월스 쇼핑 또는 저녁 식사', location: '시티 내' }
     ]
   },
-  {
+  3: {
     day: 3,
-    title: '오페라하우스 및 시티 워킹',
     date: '5/7(목)',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.964408047913!2d151.2127264765469!3d-33.85678437323136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12ae665e892fdd%3A0x3133f8d75a1ac251!2sSydney%20Opera%20House!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '10:30', desc: '오페라하우스 내부 투어 대기', location: 'Lower Concourse 투어 데스크', icon: <MapPin size={18} /> },
-      { time: '10:45', desc: '오페라하우스 내부 관람 (30분 소요)', location: '오페라하우스 내부', icon: <Camera size={18} /> },
-      { time: '15:50', desc: '시티 워킹투어 미팅 (물, 편한 신발)', location: '써큘러키 선착장 6번 앞', icon: <Compass size={18} /> },
-      { time: '오후', desc: '시드니 시티 선셋 워킹투어 (오팔카드 지참)', location: '시드니 시티 주요 명소', icon: <Sun size={18} /> }
+      { time: '10:30', title: '미팅', desc: '오페라하우스 내부 투어 대기', location: 'Lower Concourse' },
+      { time: '10:45', title: '패키지', desc: '오페라하우스 내부 관람', location: '오페라하우스' },
+      { time: '15:50', title: '미팅', desc: '시티 워킹투어 미팅', location: '써큘러키 선착장 6번 앞' },
+      { time: '오후', title: '패키지', desc: '시드니 시티 선셋 워킹투어', location: '시드니 시티 주요 명소' }
     ]
   },
-  {
+  4: {
     day: 4,
-    title: '하버 런치 크루즈',
     date: '5/8(금)',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.8396071490226!2d151.21528657654714!3d-33.86146037323004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12ae6143c13aeb%3A0x280e7d56e18b0!2sRoyal%20Botanic%20Garden%20Sydney!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '11:45', desc: '런치 크루즈 보딩 대기', location: 'Eastern Pontoon, Circular Quay', icon: <MapPin size={18} /> },
-      { time: '12:30', desc: '하버 런치 크루즈 (뷔페 식사)', location: '시드니 하버', icon: <Coffee size={18} /> },
-      { time: '14:15', desc: '크루즈 하선 후 이동, 보타닉 가든 방향 산책', location: 'Circular Quay → 보타닉 가든', icon: <Navigation size={18} /> },
-      { time: '오후', desc: '로얄 보타닉 가든 & 시내 관광 (가이드 미동반)', location: '로얄 보타닉 가든 & 시내', icon: <Camera size={18} /> }
+      { time: '11:45', title: '미팅', desc: '런치 크루즈 보딩 대기', location: 'Eastern Pontoon' },
+      { time: '12:30', title: '패키지', desc: '하버 런치 크루즈(뷔페 식사)', location: '시드니 하버' },
+      { time: '14:15', title: '종료', desc: '크루즈 하선 후 이동', location: 'Circular Quay → 보타닉 가든' },
+      { time: '오후', title: '자유일정', desc: '로얄 보타닉 가든 & 시내 관광', location: '로얄 보타닉 가든' }
     ]
   },
-  {
+  5: {
     day: 5,
-    title: '시드니 출발',
     date: '5/9(토)',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.3087361819665!2d151.17316717654763!3d-33.93992297320005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12b0f11b3382cb%3A0xc6c38f4e24eb37a!2sSydney%20Airport!5e0!3m2!1sen!2skr!4v1700000000000',
     activities: [
-      { time: '07:30', desc: '호텔 앞 공항 이동 서비스', location: '호텔 앞', icon: <Navigation size={18} /> },
-      { time: '오전', desc: '시드니 공항 도착 후 샌딩', location: '시드니 공항', icon: <Plane size={18} /> }
+      { time: '07:30', title: '드랍', desc: '호텔 앞 공항 이동 서비스', location: '호텔 앞' },
+      { time: '오전', title: '샌딩', desc: '시드니 공항 도착 후 샌딩', location: '시드니 공항' }
     ]
   }
-];
-
-const placesData = [
-  {
-    name: 'Sydney Opera House',
-    desc: '시드니의 상징이자 필수 방문 코스인 오페라하우스.',
-    img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    name: 'Blue Mountains',
-    desc: '푸른 빛의 신비로운 숲, 페더데일 동물원과 시닉월드를 경험하세요.',
-    img: 'https://images.unsplash.com/photo-1549487771-482a0dcb866a?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    name: 'Sydney Harbour',
-    desc: '아름다운 시드니 하버를 크루즈에서 뷔페와 함께 즐겨보세요.',
-    img: 'https://images.unsplash.com/photo-1528072164453-f4e8ef0d475a?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    name: 'Royal Botanic Garden',
-    desc: '여유로운 산책과 함께 시드니 시내의 전경을 감상할 수 있는 보타닉 가든.',
-    img: 'https://images.unsplash.com/photo-1557002778-577edbcaee2e?q=80&w=800&auto=format&fit=crop'
-  }
-];
+};
 
 function App() {
-  const [activeTab, setActiveTab] = useState('itinerary');
+  const [activeTab, setActiveTab] = useState('home');
+
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'home':
+        return <HomeScreen onNavigate={setActiveTab} />;
+      case 'itinerary':
+        return <ItineraryScreen />;
+      case 'reservation':
+        return <ReservationScreen />;
+      case 'guide':
+        return <PlaceholderScreen title="여행 가이드" icon={<BookOpen size={48} />} />;
+      case 'record':
+        return <PlaceholderScreen title="여행 기록" icon={<Camera size={48} />} />;
+      default:
+        return <HomeScreen onNavigate={setActiveTab} />;
+    }
+  };
 
   return (
-    <div className="app-container">
-      {/* Hero Section */}
-      <section className="hero-section" style={{
-        minHeight: '80vh',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundImage: 'url("https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=2000&auto=format&fit=crop")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(to bottom, rgba(248,250,252,0.4) 0%, rgba(248,250,252,1) 100%)',
-          zIndex: 1
-        }}></div>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          style={{ position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 20px' }}
-        >
-          <motion.div 
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-            style={{ marginBottom: '20px', display: 'inline-block' }}
-          >
-            <Map size={48} color="#0ea5e9" />
-          </motion.div>
-          <h1 style={{ fontSize: '4rem', marginBottom: '16px', letterSpacing: '-1px', color: '#1e293b' }}>
-            <span className="text-gradient">Sydney</span> Journey
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: '#475569', maxWidth: '600px', margin: '0 auto 40px', fontWeight: '500' }}>
-            한눈에 보는 시드니 여행 계획 🇦🇺
-          </p>
-          
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-            <button 
-              className={`nav-btn ${activeTab === 'itinerary' ? 'active' : ''}`}
-              onClick={() => setActiveTab('itinerary')}
-              style={navBtnStyle(activeTab === 'itinerary')}
-            >
-              <Calendar size={20} /> 일정표
-            </button>
-            <button 
-              className={`nav-btn ${activeTab === 'places' ? 'active' : ''}`}
-              onClick={() => setActiveTab('places')}
-              style={navBtnStyle(activeTab === 'places')}
-            >
-              <MapPin size={20} /> 핫플레이스
-            </button>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Main Content */}
-      <main className="container" style={{ position: 'relative', zIndex: 2, marginTop: '-30px', paddingBottom: '100px' }}>
-        <AnimatePresence mode="wait">
-          {activeTab === 'itinerary' && (
-            <motion.div
-              key="itinerary"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '40px', textAlign: 'center', color: '#1e293b' }}>전체 일정표</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                {itineraryData.map((day) => (
-                  <div key={day.day} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-                    <div style={{ flex: '1 1 200px', borderRight: '1px solid rgba(0,0,0,0.1)', paddingRight: '20px' }}>
-                      <h3 style={{ fontSize: '2rem', color: '#0ea5e9', marginBottom: '8px' }}>{day.day}일차</h3>
-                      <h4 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#334155' }}>{day.title}</h4>
-                      <p style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: '500' }}>{day.date}</p>
-                    </div>
-                    <div style={{ flex: '2 1 400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {day.activities.map((act, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'rgba(241,245,249,0.7)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(226,232,240,0.8)' }}>
-                          <div style={{ color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245,158,11,0.15)', padding: '10px', borderRadius: '50%' }}>
-                            {act.icon}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <p style={{ fontWeight: '600', marginBottom: '4px', color: '#334155' }}>{act.desc}</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <span style={{ color: '#0ea5e9', fontSize: '0.85rem', fontWeight: 'bold' }}>{act.time}</span>
-                              <span style={{ color: '#64748b', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <MapPin size={12} /> {act.location}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {activeTab === 'places' && (
-            <motion.div
-              key="places"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '40px', textAlign: 'center', color: '#1e293b' }}>추천 여행지</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
-                {placesData.map((place, index) => (
-                  <motion.div 
-                    key={index} 
-                    className="glass-card" 
-                    style={{ padding: '0', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
-                    whileHover={{ y: -10 }}
-                  >
-                    <div style={{ height: '200px', overflow: 'hidden' }}>
-                      <img 
-                        src={place.img} 
-                        alt={place.name} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} 
-                        className="place-img"
-                      />
-                    </div>
-                    <div style={{ padding: '24px' }}>
-                      <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', color: '#334155' }}>{place.name}</h3>
-                      <p style={{ color: '#64748b', fontSize: '0.95rem' }}>{place.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <>
+      <main style={{ flex: 1, overflowY: 'auto', paddingBottom: '70px', backgroundColor: '#f3f4f6' }}>
+        {renderContent()}
       </main>
 
-      <footer style={{ textAlign: 'center', padding: '40px 20px', borderTop: '1px solid rgba(0,0,0,0.05)', marginTop: '40px', color: '#94a3b8' }}>
-        <p>© 2026 Sydney Trip Planner. Enjoy your journey!</p>
-      </footer>
+      {/* Bottom Navigation */}
+      <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: '480px',
+        backgroundColor: '#ffffff',
+        display: 'flex',
+        borderTop: '1px solid #e5e7eb',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        zIndex: 50
+      }}>
+        <TabButton icon={<Home />} label="홈" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+        <TabButton icon={<Calendar />} label="일정" isActive={activeTab === 'itinerary'} onClick={() => setActiveTab('itinerary')} />
+        <TabButton icon={<Ticket />} label="예약" isActive={activeTab === 'reservation'} onClick={() => setActiveTab('reservation')} />
+        <TabButton icon={<BookOpen />} label="가이드" isActive={activeTab === 'guide'} onClick={() => setActiveTab('guide')} />
+        <TabButton icon={<Camera />} label="기록" isActive={activeTab === 'record'} onClick={() => setActiveTab('record')} />
+      </nav>
+    </>
+  );
+}
+
+function TabButton({ icon, label, isActive, onClick }) {
+  return (
+    <button className={`tab-button ${isActive ? 'active' : ''}`} onClick={onClick}>
+      {React.cloneElement(icon, { size: 22 })}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function HomeScreen({ onNavigate }) {
+  return (
+    <div style={{ backgroundColor: '#ffffff', minHeight: '100%', paddingBottom: '20px' }}>
+      <div style={{
+        backgroundColor: '#3b82f6',
+        padding: '40px 20px',
+        borderBottomLeftRadius: '24px',
+        borderBottomRightRadius: '24px',
+        color: '#fff',
+        marginBottom: '20px'
+      }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '8px' }}>호주 시드니 여행 🇦🇺</h1>
+        <p style={{ opacity: 0.9 }}>2026.05.04 ~ 05.16 (KIM JIHYUN)</p>
+      </div>
+
+      <div style={{ padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <button className="home-menu-btn" onClick={() => onNavigate('itinerary')}>
+          <Calendar size={32} />
+          <span>일정표</span>
+        </button>
+        <button className="home-menu-btn" onClick={() => onNavigate('reservation')}>
+          <Ticket size={32} />
+          <span>예약확인</span>
+        </button>
+        <button className="home-menu-btn" onClick={() => onNavigate('guide')}>
+          <BookOpen size={32} />
+          <span>여행가이드</span>
+        </button>
+        <button className="home-menu-btn" onClick={() => onNavigate('record')}>
+          <Camera size={32} />
+          <span>여행기록</span>
+        </button>
+      </div>
     </div>
   );
 }
 
-const navBtnStyle = (isActive) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-  padding: '12px 24px',
-  borderRadius: '30px',
-  border: isActive ? 'none' : '1px solid rgba(0,0,0,0.1)',
-  background: isActive ? 'var(--accent-gradient)' : 'rgba(255,255,255,0.8)',
-  color: isActive ? '#fff' : '#475569',
-  fontSize: '1rem',
-  fontWeight: '600',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  backdropFilter: 'blur(10px)',
-  boxShadow: isActive ? '0 10px 20px rgba(14, 165, 233, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
-});
+function ItineraryScreen() {
+  const [selectedDay, setSelectedDay] = useState(1);
+  const currentData = itineraryData[selectedDay];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ width: '100%', height: '30vh', backgroundColor: '#e5e7eb' }}>
+        <iframe
+          src={currentData.mapUrl}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen=""
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title={`Day ${selectedDay} Map`}
+        ></iframe>
+      </div>
+      
+      <div className="day-selector">
+        {[1, 2, 3, 4, 5].map(day => (
+          <div 
+            key={day}
+            className={`day-btn ${selectedDay === day ? 'active' : ''}`}
+            onClick={() => setSelectedDay(day)}
+          >
+            <span className="day-title">Day {day}</span>
+            <span className="day-date">{itineraryData[day].date}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: '24px 20px', backgroundColor: '#fff', flex: 1 }}>
+        {currentData.activities.map((act, index) => (
+          <div key={index} className="timeline-item">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ flexShrink: 0, width: '45px', fontSize: '0.85rem', fontWeight: '600', color: '#3b82f6', marginTop: '2px' }}>
+                {act.time}
+              </div>
+              <div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '4px' }}>
+                  <span style={{ backgroundColor: '#eff6ff', color: '#3b82f6', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', marginRight: '6px' }}>{act.title}</span>
+                  {act.desc}
+                </h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '0.85rem' }}>
+                  <MapPin size={14} /> {act.location}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+        <div style={{ textAlign: 'center', padding: '20px', color: '#9ca3af', fontSize: '0.85rem' }}>
+          일정의 끝입니다.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReservationScreen() {
+  return (
+    <div style={{ padding: '20px', minHeight: '100%', backgroundColor: '#f3f4f6' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>나의 예약 정보</h2>
+      
+      {/* Flight Ticket 1 */}
+      <div className="ticket-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>ASIANA AIRLINES</span>
+            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937' }}>OZ601</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>예약번호</span>
+            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#3b82f6' }}>EEBGXT</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>ICN</div>
+            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>인천 (Seoul)</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#9ca3af' }}>
+            <PlaneTakeoff size={24} color="#3b82f6" />
+            <span style={{ fontSize: '0.75rem', marginTop: '4px' }}>10H 20M</span>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>SYD</div>
+            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>시드니 (Sydney)</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일시</div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>04MAY26 (월) 20:10</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>도착일시</div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>05MAY26 (화) 07:30</div>
+          </div>
+        </div>
+
+        <div className="ticket-divider"></div>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <div><span style={{ color: '#6b7280' }}>승객명:</span> <span style={{ fontWeight: '600' }}>KIM/JIHYUN MS</span></div>
+          <div><span style={{ color: '#6b7280' }}>좌석:</span> <span style={{ fontWeight: '600' }}>05E</span></div>
+        </div>
+      </div>
+
+      {/* Flight Ticket 2 */}
+      <div className="ticket-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>ASIANA AIRLINES</span>
+            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937' }}>OZ602</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>예약번호</span>
+            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#3b82f6' }}>DIKMHP</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>SYD</div>
+            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>시드니 (Sydney)</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#9ca3af' }}>
+            <PlaneLanding size={24} color="#3b82f6" />
+            <span style={{ fontSize: '0.75rem', marginTop: '4px' }}>10H 30M</span>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>ICN</div>
+            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>인천 (Seoul)</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일시</div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>16MAY26 (토) 09:30</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>도착일시</div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>16MAY26 (토) 19:00</div>
+          </div>
+        </div>
+
+        <div className="ticket-divider"></div>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <div><span style={{ color: '#6b7280' }}>승객명:</span> <span style={{ fontWeight: '600' }}>KIM/JIHYUN MS</span></div>
+          <div><span style={{ color: '#6b7280' }}>좌석:</span> <span style={{ fontWeight: '600' }}>26B</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PlaceholderScreen({ title, icon }) {
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', color: '#9ca3af' }}>
+      <div style={{ marginBottom: '16px', color: '#d1d5db' }}>{icon}</div>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#4b5563' }}>{title}</h2>
+      <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>아직 준비 중인 메뉴입니다.</p>
+    </div>
+  );
+}
 
 export default App;
