@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800&display=swap');
 
 :root {
-  --bg-color: #0f172a;
-  --text-color: #f8fafc;
-  --primary-color: #38bdf8;
-  --secondary-color: #fbbf24;
-  --card-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --accent-gradient: linear-gradient(135deg, #38bdf8, #818cf8);
+  --bg-color: #f8fafc;
+  --text-color: #334155;
+  --primary-color: #0ea5e9;
+  --secondary-color: #f59e0b;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --accent-gradient: linear-gradient(135deg, #0ea5e9, #3b82f6);
 }
 
 * {
