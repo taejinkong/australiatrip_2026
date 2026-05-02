@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
-import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding } from 'lucide-react';
+import { Home, Calendar, Ticket, BookOpen, Camera, Plane, MapPin, Navigation, Clock, PlaneTakeoff, PlaneLanding, Bus } from 'lucide-react';
 import './index.css';
 
 const itineraryData = {
+  0: {
+    day: 0,
+    date: '5/4(월)',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3161.8028753239845!2d126.4312891156543!3d37.58330757979469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357b90b41188334b%3A0xcdaefc1e1c3132e0!2sIncheon%20International%20Airport%20Terminal%202!5e0!3m2!1sen!2skr!4v1700000000000',
+    activities: [
+      { time: '08:44', title: '출발', desc: '공항버스 탑승 (우등, 좌석 10번)', location: '동탄(호수부영3차)', icon: <Bus size={18} /> },
+      { time: '10:43', title: '도착', desc: '인천공항 제2여객터미널 도착', location: '인천공항T2', icon: <Navigation size={18} /> },
+      { time: '20:10', title: '출발', desc: '인천공항 출발 (OZ601)', location: '인천공항T2', icon: <PlaneTakeoff size={18} /> }
+    ]
+  },
   1: {
     day: 1,
     date: '5/5(화)',
@@ -155,7 +165,7 @@ function HomeScreen({ onNavigate }) {
 }
 
 function ItineraryScreen() {
-  const [selectedDay, setSelectedDay] = useState(1);
+  const [selectedDay, setSelectedDay] = useState(0);
   const currentData = itineraryData[selectedDay];
 
   return (
@@ -174,7 +184,7 @@ function ItineraryScreen() {
       </div>
       
       <div className="day-selector">
-        {[1, 2, 3, 4, 5].map(day => (
+        {[0, 1, 2, 3, 4, 5].map(day => (
           <div 
             key={day}
             className={`day-btn ${selectedDay === day ? 'active' : ''}`}
@@ -218,6 +228,46 @@ function ReservationScreen() {
     <div style={{ padding: '20px', minHeight: '100%', backgroundColor: '#f3f4f6' }}>
       <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '16px', color: '#1f2937' }}>나의 예약 정보</h2>
       
+      {/* Bus Ticket */}
+      <div className="ticket-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>용남익스프레스</span>
+            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937' }}>공항버스 (우등)</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '600' }}>승차홈</span>
+            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#3b82f6' }}>현장확인</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>동탄</div>
+            <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>(호수부영3차)</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#9ca3af' }}>
+            <Bus size={24} color="#f59e0b" />
+            <span style={{ fontSize: '0.75rem', marginTop: '4px' }}>1:59 소요</span>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>인천공항</div>
+            <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>T2</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>출발일시</div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>2026.05.04 08:44</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>좌석번호</div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>10 번</div>
+          </div>
+        </div>
+      </div>
+
       {/* Flight Ticket 1 */}
       <div className="ticket-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
